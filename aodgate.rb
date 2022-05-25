@@ -34,7 +34,6 @@ class AODGate < Sinatra::Base
 
   def initialize
     super
-    @redis = Redis.new(url: "redis://#{ENV['REDIS_HOST']}:#{ENV['REDIS_PORT']}/#{ENV['REDIS_DB']}")
   end
 
   use Rack::Throttle::Minute, :max => REQUEST_LIMIT[:per_minute]
@@ -46,18 +45,11 @@ class AODGate < Sinatra::Base
 
   get '/pow' do
     challange = { wanted: SecureRandom.hex(POW_RANDOMNESS).unpack("B*")[0][0..POW_DIFFICULITY-1], key: SecureRandom.hex(POW_RANDOMNESS) }
-    @redis.set(challange[:key], {wanted: challange[:wanted]}.to_json, ex: ENV['POW_EXPIRE_SECONDS'].to_i)
     return challange.to_json
   end
 
   post '/pow/:topic' do
     halt 404 unless TOPICS.include?(params[:topic])
-    pow_json = @redis.get(params[:key])
-    @redis.del(params[:key])
-    halt(902, "Pow not handed") unless pow_json # This pow was never requested or has expired
-    pow = JSON.parse(pow_json)
-
-    halt(903, "Pow not solved correctly") unless Digest::SHA2.hexdigest("aod^" + params[:solution] + "^" + params[:key]).unpack("B*")[0].start_with?(pow['wanted'])
     halt(904, "Payload too large") unless params[:natsmsg].bytesize <= NATS_PAYLOAD_MAX
 
     begin
