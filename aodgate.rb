@@ -50,7 +50,7 @@ class AODGate < Sinatra::Base
 
   post '/pow/:topic' do
     halt 404 unless TOPICS.include?(params[:topic])
-    halt(904, "Payload too large") unless params[:natsmsg].bytesize <= NATS_PAYLOAD_MAX
+    halt(905, "Payload too large") unless params[:natsmsg].bytesize <= NATS_PAYLOAD_MAX
 
     begin
       data = JSON.parse(params[:natsmsg])
@@ -58,12 +58,12 @@ class AODGate < Sinatra::Base
       halt(901, "Invalid JSON data")
     end
 
-    if params[:topic] == "marketorders.ingest" && data['Orders'].count > 50
+    if params[:topic] == "marketorders.ingest" && data['Orders'].count > 500
       LOGGER.warn("Error 904, Too Much Data. ip: #{request.ip}, topic: marketorders.ingest, order count: #{data['Orders'].count}")
-      halt(904, "Too much data")
+      halt(906, "Too much data")
     end
 
-    if params[:topic] == "goldprices.ingest" && data['Prices'].count > 673
+    if params[:topic] == "goldprices.ingest" && data['Prices'].count > 6730
       LOGGER.warn("Error 904, Too Much Data. ip: #{request.ip}, topic: goldprices.ingest, order count: #{data['Prices'].count}")
       halt(904, "Too much data")
     end
@@ -71,14 +71,14 @@ class AODGate < Sinatra::Base
     if params[:topic] == "markethistories.ingest"
       failed = false
 
-      failed = true if data['Timescale'] == 0 && data['MarketHistories'].count > 25
-      failed = true if data['Timescale'] == 1 && data['MarketHistories'].count > 29
-      failed = true if data['Timescale'] == 2 && data['MarketHistories'].count > 113
+      failed = true if data['Timescale'] == 0 && data['MarketHistories'].count > 250
+      failed = true if data['Timescale'] == 1 && data['MarketHistories'].count > 290
+      failed = true if data['Timescale'] == 2 && data['MarketHistories'].count > 1130
 
 
       if failed == true
         LOGGER.warn("Error 904, Too Much Data. ip: #{request.ip}, topic: markethistories.ingest, Timescale: #{data['Timescale']}, MarketHistories count: #{data['MarketHistories'].count}")
-        halt(904, "Too much data")
+        halt(900, "Too much data")
       end
     end
 
