@@ -5,9 +5,9 @@ NATS_URI = ENV['NATS_URI']
 # get pow
 # submit pow & ingestion
 REQUEST_LIMIT = {
-  per_day: 900_000 * 2,
-  per_hour: 900_000 * 2,
-  per_minute: 900_000 * 2,
+  per_day: 900_000 * 9,
+  per_hour: 900_000 * 9,
+  per_minute: 900_000 * 9,
 }
 
 # Number of handed pows to remember (prevents out of memory)
@@ -15,11 +15,11 @@ POW_KEEP = 3_000
 
 # Higher difficulity will take the client more time to solve
 # Benchmark: https://docs.google.com/spreadsheets/d/1aongAIvJs0idA9ABk_saGIyeyvZJL9glxf1vsaCO5MY/edit?usp=sharing
-POW_DIFFICULITY =  ENV['POW_DIFFICULITY'].nil? ? 39 : ENV['POW_DIFFICULITY'].to_i
+POW_DIFFICULITY =  ENV['POW_DIFFICULITY'].nil? ? 10 : ENV['POW_DIFFICULITY'].to_i
 
 # Limits the size of a nats payload
 # 32768 should be large enough for any corrctly functioning client
-NATS_PAYLOAD_MAX =  ENV['NATS_PAYLOAD_MAX'].nil? ? 32768 : ENV['NATS_PAYLOAD_MAX'].to_i
+NATS_PAYLOAD_MAX =  ENV['NATS_PAYLOAD_MAX'].nil? ? 327680 : ENV['NATS_PAYLOAD_MAX'].to_i
 
 # Higher randomness will make it harder to store all possible combinations
 # If it is to low the pows can be pre-solved, stored and lookedup as needed
